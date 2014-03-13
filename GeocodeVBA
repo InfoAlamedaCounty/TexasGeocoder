@@ -1,0 +1,62 @@
+********This is the basic command button click action
+
+Private Sub CommandButton1_Click()
+    getLatLng
+End Sub
+
+*********This is the subroutine that is run when the  button is clicked :)
+
+Sub getLatLng()
+    
+  
+    Dim urlString As String
+    Dim eString As Variant
+    Dim theValue As String
+       
+    myKey = "" 'Enter your API Key
+    myVersion = "4.01" 'Enter the version of the  API you are using
+    myFormat = "csv" 'What return format do you want?
+    finalRecord = 0  'laziness: you could calculate this but I am hard coding
+    
+' Read the data from the website
+
+
+With Worksheets("Worksheet")
+'loop over values in worksheet grabbing address fields
+    For x = 3 To finalRecord 'this could be calculated
+    
+    
+    urlString = "http://geoservices.tamu.edu/Services/Geocode/WebService/GeocoderWebServiceHttpNonParsed_V04_01.aspx?"
+    Set xhrRequest = New XMLHTTP60
+        myStreetAddress = .Cells(x, 2).Value
+        myCity = .Cells(x, 3).Value
+        myState = .Cells(x, 4).Value
+        'myZip = .Cells(x, 5).Value
+        
+    Debug.Print myStreetAddress
+    
+    'the ugly way of making a url
+    
+    urlString = urlString & "apikey=" & myKey & "&streetAddress=" & myStreetAddress & "&version=" & myVersion & "&city=" & myCity & "&state=" & myState & "&format=" & myFormat
+    xhrRequest.Open "GET", urlString, False
+    xhrRequest.send
+    If xhrRequest.Status = 200 Then
+        theValue = xhrRequest.responseText
+        theString = Split(theValue, ",")
+        If theString(2) = 200 Then
+           'Debug.Print "Lat" & theString(4)
+            .Cells(x, 6).Value = theString(3)
+            .Cells(x, 7).Value = theString(4)
+            .Cells(x, 8).Value = theString(8)
+        Else
+            Debug.Print theValue
+        End If
+         
+    Else
+        Debug.Print xhr.responseText
+    End If
+    Set xhrRequest = Nothing
+    Next x
+End With
+
+End Sub
